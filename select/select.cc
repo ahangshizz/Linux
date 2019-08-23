@@ -1,8 +1,3 @@
-/** 
- * @brief
- * 
- * @return 
- */
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -32,7 +27,7 @@ int main() {
   listen(listenfd,128);
   maxfd=listenfd;
   maxi=-1;
-  for(i=0;i<FD_SETSIZE;++i) {
+  for(i=0;i < FD_SETSIZE;++i) {
     client[i]=-1;
   }
   FD_ZERO(&allset);
@@ -40,15 +35,15 @@ int main() {
   while(1) {
     rset=allset;
     nready=select(maxfd+1,&rset,NULL,NULL,NULL);
-    if(nready<0) {
+    if(nready < 0) {
       perror("select");
     }
     if(FD_ISSET(listenfd,&rset)) {
       clielen=sizeof(clieaddr);
       connfd=accept(listenfd,(sockaddr*)&clieaddr,&clielen);
       printf("clientip:%s port:%d\n",inet_ntop(AF_INET,&clieaddr.sin_addr,clieip,sizeof(clieip)),ntohs(clieaddr.sin_port));
-      for(i=0;i<FD_SETSIZE;++i) {
-        if(client[i]<0) {
+      for(i=0;i < FD_SETSIZE;++i) {
+        if(client[i] < 0) {
           client[i]=connfd;
           break;
         }
@@ -57,23 +52,23 @@ int main() {
         printf("too many cliens\n");
       }
       FD_SET(connfd,&allset);
-      if(connfd>maxfd)
+      if(connfd > maxfd)
         maxfd=connfd;
-      if(i>maxi)
+      if(i > maxi)
         maxi=i;
       if(--nready==0)
         continue;
     }
-    for(i=0;i<maxi;++i) {
-      if((sockfd=client[i])<0)
+    for(i=0;i < maxi;++i) {
+      if((sockfd=client[i]) < 0)
         continue;
       if(FD_ISSET(sockfd,&rset)) {
         if((len=read(sockfd,buf,sizeof(buf)))==0) {
           close(sockfd);
           FD_CLR(sockfd,&allset);
           client[i]=-1;
-        }else if(len>0) {
-          for(int j=0;j<len;++j) {
+        }else if(len > 0) {
+          for(int j=0;j < len;++j) {
             buf[j]=toupper(buf[j]);
           }
           write(STDOUT_FILENO,buf,len);
